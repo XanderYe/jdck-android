@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity" app:layoutDescription="@xml/activity_main_scene" android:orientation="vertical">
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <Spinner android:layout_width="0dp"
+                 android:layout_weight="2.0"
+                 android:layout_marginLeft="4dp"
+                 android:layout_marginRight="4dp"
+                 android:layout_height="match_parent" android:id="@+id/phoneSpinner"/>
+        <Button
+                android:text="@string/add_btn_text"
+                android:layout_width="0dp"
+                android:layout_weight="1.0"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:id="@+id/addBtn"/>
+        <Button
+                android:text="@string/del_btn_text"
+                android:layout_width="0dp"
+                android:layout_weight="1.0"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:id="@+id/delBtn"/>
+    </LinearLayout>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <Button
+                android:text="@string/input_btn_text"
+                android:layout_width="0dp"
+                android:layout_weight="1.0"
+                android:layout_height="wrap_content" android:id="@+id/inputBtn"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+        />
+        <Button
+                android:text="@string/get_cookie_btn_text"
+                android:layout_width="0dp"
+                android:layout_weight="1.0"
+                android:layout_height="wrap_content" android:id="@+id/getCookieBtn"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+        />
+        <Button
+                android:text="@string/clear_cookie_btn_text"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" android:id="@+id/clearCookieBtn"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+        />
+    </LinearLayout>
+    <WebView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" android:id="@+id/webView"/>
+</LinearLayout>
