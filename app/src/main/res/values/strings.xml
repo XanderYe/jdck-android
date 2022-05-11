@@ -9,6 +9,7 @@
     <string name="ql_address_text">青龙地址：</string>
     <string name="ql_username_text">用户名：</string>
     <string name="ql_password_text">密码：</string>
+    <string name="ql_token_text">token：</string>
     <string name="ql_login_btn_text">登录</string>
     <string name="ql_cancel_btn_text">取消</string>
     <string name="ql_old_version_text">老版本</string>

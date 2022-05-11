@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author yezhendong
+ * @author XanderYe
  * @description:
  * @date 2022/5/11 14:04
  */
@@ -21,7 +21,7 @@ public class QinglongUtil {
      * 登录
      * @param qlInfo
      * @return java.lang.String
-     * @author yezhendong
+     * @author XanderYe
      * @date 2022/5/11
      */
     public static String login(QlInfo qlInfo) throws IOException {
@@ -53,16 +53,11 @@ public class QinglongUtil {
      * 获取环境变量
      * @param qlInfo
      * @return java.util.List<cn.xanderye.android.jdck.entity.QlEnv>
-     * @author yezhendong
+     * @author XanderYe
      * @date 2022/5/11
      */
     public static List<QlEnv> getEnvList(QlInfo qlInfo) throws IOException {
-        String url = qlInfo.getAddress();
-        if (qlInfo.getOldVersion()) {
-            url += "/api/envs";
-        } else {
-            url += "/api/envs";
-        }
+        String url = qlInfo.getAddress() + "/api/envs";
         url += "?searchValue=&t=" + System.currentTimeMillis();
         Map<String, Object> headers = new HashMap<>();
         headers.put("Authorization", "Bearer " + qlInfo.getToken());
@@ -82,18 +77,16 @@ public class QinglongUtil {
      * @param qlInfo
      * @param qlEnv
      * @return boolean
-     * @author yezhendong
+     * @author XanderYe
      * @date 2022/5/11
      */
     public static boolean saveEnv(QlInfo qlInfo, QlEnv qlEnv) throws IOException {
-        String url = qlInfo.getAddress();
+        String url = qlInfo.getAddress() + "/api/envs";;
         JSONObject params = new JSONObject();
         if (qlInfo.getOldVersion()) {
-            url += "/api/envs";
             params.put("_id", qlEnv.get_id());
         } else {
-            url += "/api/envs";
-            params.put("id", qlEnv.getId());
+            params.put("id", qlEnv.get_id());
         }
         url += "?t=" + System.currentTimeMillis();
         Map<String, Object> headers = new HashMap<>();

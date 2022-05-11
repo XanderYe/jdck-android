@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
             if (qlInfo == null || qlInfo.getToken() == null) {
                 Toast.makeText(this, "获取成功，已复制到剪切板", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "获取成功，已复制到剪切板，尝试自动更新青龙", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "获取成功，已复制到剪切板，尝试自动更新青龙面板环境变量", Toast.LENGTH_SHORT).show();
                 updateCookie(cookie);
             }
         });
@@ -278,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
      * 调用青龙接口更新cookie
      * @param cookie
      * @return void
-     * @author yezhendong
+     * @author XanderYe
      * @date 2022/5/11
      */
     private void updateCookie(String cookie) {

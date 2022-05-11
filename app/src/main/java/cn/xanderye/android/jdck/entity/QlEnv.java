@@ -3,14 +3,12 @@ package cn.xanderye.android.jdck.entity;
 import lombok.Data;
 
 /**
- * @author yezhendong
+ * @author XanderYe
  * @description:
  * @date 2022/5/11 14:15
  */
 @Data
 public class QlEnv {
-
-    private String id;
 
     private String _id;
 

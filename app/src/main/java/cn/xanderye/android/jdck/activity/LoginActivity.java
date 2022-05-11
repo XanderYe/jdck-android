@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * @author yezhendong
+ * @author XanderYe
  * @description:
  * @date 2022/5/11 13:39
  */
@@ -34,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private SharedPreferences config;
 
-    private EditText addressText, usernameText, passwordText;
+    private EditText addressText, usernameText, passwordText, tokenText;
 
     private Button loginBtn, cancelBtn;
 
@@ -61,6 +61,8 @@ public class LoginActivity extends AppCompatActivity {
         usernameText.setText(qlInfo.getUsername());
         passwordText = findViewById(R.id.passwordText);
         passwordText.setText(qlInfo.getPassword());
+        tokenText = findViewById(R.id.tokenText);
+        tokenText.setText(qlInfo.getToken());
         oldVersionCheckBox = findViewById(R.id.oldVersionCheckBox);
         oldVersionCheckBox.setChecked(qlInfo.getOldVersion());
 
@@ -69,40 +71,51 @@ public class LoginActivity extends AppCompatActivity {
             String addr = addressText.getEditableText().toString();
             String user = usernameText.getEditableText().toString();
             String pwd = passwordText.getEditableText().toString();
-            if (StringUtils.isAnyBlank(addr, user, pwd)) {
-                Toast.makeText(this, "输入框不能为空", Toast.LENGTH_SHORT).show();
+            String token = tokenText.getEditableText().toString();
+            if (StringUtils.isBlank(addr)) {
+                Toast.makeText(this, "地址不能为空", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (StringUtils.isBlank(token) && StringUtils.isAnyBlank(user, pwd)) {
+                Toast.makeText(this, "账户密码或token必须有一个方式", Toast.LENGTH_SHORT).show();
                 return;
             }
             QlInfo qlInfo2 = new QlInfo();
             qlInfo2.setAddress(addr.trim());
             qlInfo2.setUsername(user.trim());
             qlInfo2.setPassword(pwd.trim());
+            qlInfo2.setToken(token.trim());
             qlInfo2.setOldVersion(oldVersionCheckBox.isChecked());
             ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
             singleThreadExecutor.execute(() -> {
                 Looper.prepare();
                 try {
-                    String token = QinglongUtil.login(qlInfo2);
-                    if (StringUtils.isBlank(token)) {
-                        Toast.makeText(this, "登录失败，token为空", Toast.LENGTH_SHORT).show();
+                    if (StringUtils.isNotBlank(token)) {
+                        try {
+                            List<QlEnv> qlEnvList = QinglongUtil.getEnvList(qlInfo2);
+                            Config.getInstance().setQlEnvList(qlEnvList);
+                            Config.getInstance().setQlInfo(qlInfo2);
+                            loginSuccess(qlInfo2);
+                        } catch (IOException e) {
+                            Toast.makeText(this, "青龙token已失效，请重新登录", Toast.LENGTH_SHORT).show();
+                        } finally {
+                            Looper.loop();
+                        }
                         return;
                     }
-                    qlInfo2.setToken(token);
-                    Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
-                    // 存储内存
-                    Config.getInstance().setQlInfo(qlInfo2);
-                    // 数据持久化
-                    SharedPreferences.Editor edit = config.edit();
-                    edit.putString("qlJSON", JSON.toJSONString(qlInfo2));
-                    edit.apply();
-                    // 获取环境变量
-                    List<QlEnv> qlEnvList = QinglongUtil.getEnvList(qlInfo2);
-                    Config.getInstance().setQlEnvList(qlEnvList);
-                    this.finish();
+                    String tk = QinglongUtil.login(qlInfo2);
+                    if (StringUtils.isBlank(tk)) {
+                        Toast.makeText(this, "登录失败，token为空", Toast.LENGTH_SHORT).show();
+                        Looper.loop();
+                        return;
+                    }
+                    qlInfo2.setToken(tk);
+                    loginSuccess(qlInfo2);
                 } catch (IOException e) {
                     Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                } finally {
+                    Looper.loop();
                 }
-                Looper.loop();
             });
             singleThreadExecutor.shutdown();
         });
@@ -111,5 +124,19 @@ public class LoginActivity extends AppCompatActivity {
         cancelBtn.setOnClickListener(v -> {
             this.finish();
         });
+    }
+
+    private void loginSuccess(QlInfo qlInfo) throws IOException {
+        Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
+        // 存储内存
+        Config.getInstance().setQlInfo(qlInfo);
+        // 数据持久化
+        SharedPreferences.Editor edit = config.edit();
+        edit.putString("qlJSON", JSON.toJSONString(qlInfo));
+        edit.apply();
+        // 获取环境变量
+        List<QlEnv> qlEnvList = QinglongUtil.getEnvList(qlInfo);
+        Config.getInstance().setQlEnvList(qlEnvList);
+        this.finish();
     }
 }

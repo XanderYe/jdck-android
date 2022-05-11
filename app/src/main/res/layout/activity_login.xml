@@ -24,6 +24,7 @@
                     android:layout_weight="3.0"
                     android:layout_height="wrap_content"
                     android:ems="10"
+                    android:hint="http://ip:5700"
                     android:id="@+id/addressText"
             />
         </LinearLayout>
@@ -60,6 +61,23 @@
                     android:inputType="textPassword"
                     android:ems="10"
                     android:id="@+id/passwordText"
+            />
+        </LinearLayout>
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            <TextView android:layout_width="0dp"
+                      android:layout_weight="1.0"
+                      android:layout_height="wrap_content"
+                      android:gravity="right"
+                      android:text="@string/ql_token_text"/>
+            <EditText
+                    android:layout_width="0dp"
+                    android:layout_weight="3.0"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:id="@+id/tokenText"
             />
         </LinearLayout>
         <CheckBox android:layout_width="match_parent"
