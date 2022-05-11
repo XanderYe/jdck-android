@@ -1,4 +1,4 @@
-package cn.xanderye.android.util;
+package cn.xanderye.android.jdck.util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +9,7 @@ import java.util.Map;
  * @date 2022/5/10 11:20
  */
 public class JDUtil {
+
     public static Map<String, Object> formatCookies(String cookieString) {
         Map<String, Object> cookieMap = new HashMap<>(16);
         if (cookieString != null && !"".equals(cookieString)) {

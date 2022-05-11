@@ -4,7 +4,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MainActivity" app:layoutDescription="@xml/activity_main_scene" android:orientation="vertical">
+        tools:context=".activity.MainActivity" app:layoutDescription="@xml/activity_main_scene" android:orientation="vertical">
     <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -54,7 +54,7 @@
         <Button
                 android:text="@string/clear_cookie_btn_text"
                 android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_weight="1.0"
                 android:layout_height="wrap_content" android:id="@+id/clearCookieBtn"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"

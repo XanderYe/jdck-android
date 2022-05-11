@@ -1,22 +1,31 @@
-package cn.xanderye.android.jdck;
+package cn.xanderye.android.jdck.activity;
 
 import android.app.AlertDialog;
+import android.app.LocalActivityManager;
 import android.content.*;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.*;
 import android.widget.*;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import cn.xanderye.android.util.JDUtil;
+import cn.xanderye.android.jdck.R;
+import cn.xanderye.android.jdck.config.Config;
+import cn.xanderye.android.jdck.entity.QlEnv;
+import cn.xanderye.android.jdck.entity.QlInfo;
+import cn.xanderye.android.jdck.util.JDUtil;
+import cn.xanderye.android.jdck.util.QinglongUtil;
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -31,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     WebView webView;
 
-    private static final String JD_URL = "https://plogin.m.jd.com/user/login.action?appid=100&kpkey=&returnurl=http%3A%2F%2Fhome.m.jd.com%2FmyJd%2Fhome.action";
+    private static final String JD_URL = "https://home.m.jd.com/myJd/home.action";
 
     private static final Pattern PHONE_PATTERN = Pattern.compile("1\\d{10}");
 
@@ -41,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Set<String> phoneSet = new HashSet<>();
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         //支持javascript
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         //自适应屏幕
         webView.getSettings().setLoadWithOverviewMode(true);
         resetWebview();
@@ -81,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
             phoneSet = new HashSet<>(Arrays.asList(phones));
             updatePhone();
         }
-
+        // 添加按钮
         addBtn = findViewById(R.id.addBtn);
         addBtn.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -106,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "添加成功", Toast.LENGTH_SHORT).show();
             });
         });
-
+        // 删除按钮
         delBtn = findViewById(R.id.delBtn);
         delBtn.setOnClickListener(v -> {
             String selectedPhone = (String) phoneSpinner.getSelectedItem();
@@ -141,24 +151,38 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             String cookie = MessageFormat.format("pt_key={0};pt_pin={1};", ptKey, ptPin);
+            QlInfo qlInfo = Config.getInstance().getQlInfo();
             copyToClipboard(cookie);
-            Toast.makeText(this, "获取成功，已复制到剪切板", Toast.LENGTH_SHORT).show();
+            if (qlInfo == null || qlInfo.getToken() == null) {
+                Toast.makeText(this, "获取成功，已复制到剪切板", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "获取成功，已复制到剪切板，尝试自动更新青龙", Toast.LENGTH_SHORT).show();
+                updateCookie(cookie);
+            }
         });
         // 重置cookie刷新页面按钮
         clearCookieBtn = findViewById(R.id.clearCookieBtn);
         clearCookieBtn.setOnClickListener(v -> {
             resetWebview();
         });
+
+        // 检查token有效
+        checkQlLogin();
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(Menu.NONE, 1, 1, "关于");
+        menu.add(Menu.NONE, 1, 1, "青龙面板");
+        menu.add(Menu.NONE, 2, 1, "关于");
         return true;
     }
 
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
             case 1: {
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+            } break;
+            case 2: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setMessage("@XanderYe 版权所有");
                 builder.setPositiveButton("项目页面", (dialog, which) -> {
@@ -225,6 +249,73 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    private void checkQlLogin() {
+        String qlJSON = config.getString("qlJSON", null);
+        if (qlJSON == null) {
+            return;
+        }
+        QlInfo qlInfo = JSON.parseObject(qlJSON, QlInfo.class);
+        ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+        singleThreadExecutor.execute(() -> {
+            Looper.prepare();
+            try {
+                List<QlEnv> qlEnvList = QinglongUtil.getEnvList(qlInfo);
+                Config.getInstance().setQlEnvList(qlEnvList);
+                Config.getInstance().setQlInfo(qlInfo);
+                Toast.makeText(this, "青龙token有效", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                Toast.makeText(this, "青龙token已失效，请重新登录", Toast.LENGTH_SHORT).show();
+            }
+            Looper.loop();
+        });
+        singleThreadExecutor.shutdown();
+    }
+
+    /**
+     * 调用青龙接口更新cookie
+     * @param cookie
+     * @return void
+     * @author yezhendong
+     * @date 2022/5/11
+     */
+    private void updateCookie(String cookie) {
+        Map<String, Object> map = JDUtil.formatCookies(cookie);
+        String ptPin = (String) map.get("pt_pin");
+        List<QlEnv> qlEnvList = Config.getInstance().getQlEnvList();
+        QlInfo qlInfo = Config.getInstance().getQlInfo();
+        if (!qlEnvList.isEmpty()) {
+            QlEnv targetEnv = null;
+            for (QlEnv qlEnv : qlEnvList) {
+                Map<String, Object> envMap = JDUtil.formatCookies(qlEnv.getValue());
+                String tempPin = (String) envMap.get("pt_pin");
+                if(ptPin.equals(tempPin)) {
+                    targetEnv = qlEnv;
+                    break;
+                }
+            }
+            if (targetEnv == null) {
+                Toast.makeText(this, "未匹配到" + ptPin + "的cookie", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            targetEnv.setValue(cookie);
+            ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+            QlEnv finalTargetEnv = targetEnv;
+            singleThreadExecutor.execute(() -> {
+                Looper.prepare();
+                try {
+                    boolean success = QinglongUtil.saveEnv(qlInfo, finalTargetEnv);
+                    if (success) {
+                        Toast.makeText(this, "更新cookie成功", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (IOException e) {
+                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                Looper.loop();
+            });
+            singleThreadExecutor.shutdown();
         }
     }
 }
