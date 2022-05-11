@@ -89,8 +89,8 @@ public class HttpUtil {
     /**
      * 是否使用代理
      */
-    private static boolean enableProxy = true;
-    private static String proxyIp = "192.168.2.102";
+    private static boolean enableProxy = false;
+    private static String proxyIp = "127.0.0.1";
     private static int proxyPort = 8888;
     /**
      * 是否自动重定向
