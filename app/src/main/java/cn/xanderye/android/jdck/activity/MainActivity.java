@@ -297,8 +297,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             if (targetEnv == null) {
-                Toast.makeText(this, "未匹配到" + ptPin + "的cookie", Toast.LENGTH_SHORT).show();
-                return;
+                targetEnv = new QlEnv();
+                targetEnv.setName("JD_COOKIE");
             }
             targetEnv.setValue(cookie);
             ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();

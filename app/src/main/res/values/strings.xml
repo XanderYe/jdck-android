@@ -6,6 +6,7 @@
     <string name="get_cookie_btn_text">获取CK</string>
     <string name="clear_cookie_btn_text">重置</string>
     <string name="confirm_btn_text">添加</string>
+    <string name="ql_login_name">青龙面板登录</string>
     <string name="ql_address_text">青龙地址：</string>
     <string name="ql_username_text">用户名：</string>
     <string name="ql_password_text">密码：</string>

@@ -82,19 +82,26 @@ public class QinglongUtil {
      */
     public static boolean saveEnv(QlInfo qlInfo, QlEnv qlEnv) throws IOException {
         String url = qlInfo.getAddress() + "/api/envs";;
-        JSONObject params = new JSONObject();
-        if (qlInfo.getOldVersion()) {
-            params.put("_id", qlEnv.get_id());
-        } else {
-            params.put("id", qlEnv.get_id());
-        }
         url += "?t=" + System.currentTimeMillis();
         Map<String, Object> headers = new HashMap<>();
         headers.put("Authorization", "Bearer " + qlInfo.getToken());
+        JSONObject params = new JSONObject();
         params.put("name", qlEnv.getName());
         params.put("remarks", qlEnv.getRemarks());
         params.put("value", qlEnv.getValue());
-        HttpUtil.ResEntity resEntity = HttpUtil.doPutJSON(url, headers, null, params.toJSONString());
+        HttpUtil.ResEntity resEntity;
+        if (qlEnv.get_id() != null) {
+            // 更新
+            if (qlInfo.getOldVersion()) {
+                params.put("_id", qlEnv.get_id());
+            } else {
+                params.put("id", qlEnv.get_id());
+            }
+            resEntity = HttpUtil.doPutJSON(url, headers, null, params.toJSONString());
+        } else {
+            // 新增
+            resEntity = HttpUtil.doPostJSON(url, headers, null, params.toJSONString());
+        }
         if (resEntity.getStatusCode() != 200) {
             throw new IOException("服务器" + resEntity.getStatusCode() + "错误");
         }
