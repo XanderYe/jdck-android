@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                 super.onPageFinished(view, url);
             }
         });
-        // 配置手机号下拉框
+        // 配置账号下拉框
         phoneSpinner = findViewById(R.id.phoneSpinner);
         String phoneStr = config.getString("phoneStr", null);
         if (phoneStr != null) {
@@ -105,9 +105,8 @@ public class MainActivity extends AppCompatActivity {
             Button confirmBtn = dialogView.findViewById(R.id.confirmBtn);
             confirmBtn.setOnClickListener(v2 -> {
                 String phone = phoneText.getText().toString();
-                Matcher matcher = PHONE_PATTERN.matcher(phone);
-                if (!matcher.matches()) {
-                    Toast.makeText(this, "手机号输入错误", Toast.LENGTH_SHORT).show();
+                if (StringUtils.isBlank(phone)) {
+                    Toast.makeText(this, "账号输入错误", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 dialog.cancel();
@@ -121,11 +120,11 @@ public class MainActivity extends AppCompatActivity {
         delBtn.setOnClickListener(v -> {
             String selectedPhone = (String) phoneSpinner.getSelectedItem();
             if (selectedPhone == null) {
-                Toast.makeText(this, "请先选择手机号", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "请先选择账号", Toast.LENGTH_SHORT).show();
                 return;
             }
             phoneSet = phoneSet.stream().filter(phone -> !phone.equals(selectedPhone)).collect(Collectors.toSet());
-            // 更新手机号
+            // 更新账号
             updatePhone();
             Toast.makeText(this, "删除成功", Toast.LENGTH_SHORT).show();
         });
@@ -135,10 +134,20 @@ public class MainActivity extends AppCompatActivity {
         inputBtn.setOnClickListener(v -> {
             String selectedPhone = (String) phoneSpinner.getSelectedItem();
             if (selectedPhone == null) {
-                Toast.makeText(this, "请先选择手机号", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "请先选择账号", Toast.LENGTH_SHORT).show();
                 return;
             }
-            webView.loadUrl("javascript:var number='" + selectedPhone + "';var evt=new InputEvent('input',{inputType:'insertText',data:number,dataTransfer:null,isComposing:false});document.getElementsByClassName('acc-input mobile J_ping')[0].value=number;document.getElementsByClassName('acc-input mobile J_ping')[0].dispatchEvent(evt);document.getElementsByClassName('policy_tip-checkbox')[0].click();");
+            String execJs = "var account='" + selectedPhone + "';";
+            execJs += "document.getElementsByClassName('policy_tip-checkbox')[0].click();";
+            execJs += "var evt=new InputEvent('input',{inputType:'insertText',data:account,dataTransfer:null,isComposing:false});";
+            execJs += "document.getElementById('username').value=account;";
+            execJs += "document.getElementById('username').dispatchEvent(evt);";
+            Matcher matcher = PHONE_PATTERN.matcher(selectedPhone);
+            if (matcher.matches()) {
+                execJs += "document.getElementsByClassName('acc-input mobile J_ping')[0].value=account;";
+                execJs += "document.getElementsByClassName('acc-input mobile J_ping')[0].dispatchEvent(evt);";
+            }
+            webView.loadUrl("javascript:" + execJs);
         });
         // 获取cookie按钮
         getCookieBtn = findViewById(R.id.getCookieBtn);
@@ -215,13 +224,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 更新下拉和存储中的手机号
+     * 更新下拉和存储中的账号
      * @return void
      * @author XanderYe
      * @date 2022/5/10
      */
     private void updatePhone() {
-        // 更新手机号
+        // 更新账号
         String newPhoneStr = phoneSet.stream().collect(Collectors.joining(","));
         SharedPreferences.Editor edit = config.edit();
         edit.putString("phoneStr", newPhoneStr);
