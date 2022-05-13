@@ -62,7 +62,6 @@ public class LoginActivity extends AppCompatActivity {
         passwordText = findViewById(R.id.passwordText);
         passwordText.setText(qlInfo.getPassword());
         tokenText = findViewById(R.id.tokenText);
-        tokenText.setText(qlInfo.getToken());
         oldVersionCheckBox = findViewById(R.id.oldVersionCheckBox);
         oldVersionCheckBox.setChecked(qlInfo.getOldVersion());
 
