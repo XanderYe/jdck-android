@@ -1,7 +1,6 @@
 package cn.xanderye.android.jdck.activity;
 
 import android.app.AlertDialog;
-import android.app.LocalActivityManager;
 import android.content.*;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,11 +33,11 @@ public class MainActivity extends AppCompatActivity {
 
     private Context context;
 
-    Button addBtn, delBtn, inputBtn, getCookieBtn, clearCookieBtn;
+    private Button addBtn, delBtn, inputBtn, getCookieBtn, clearCookieBtn;
 
-    Spinner phoneSpinner;
+    private Spinner phoneSpinner;
 
-    WebView webView;
+    private WebView webView;
 
     private static final String JD_URL = "https://home.m.jd.com/myJd/home.action";
 
@@ -61,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         config = getSharedPreferences("CONFIG", Context.MODE_PRIVATE);
 
         webView = findViewById(R.id.webView);
+        Config.getInstance().setWebView(webView);
         //支持javascript
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(Menu.NONE, 1, 1, "青龙面板");
-        menu.add(Menu.NONE, 2, 1, "关于");
+        menu.add(Menu.NONE, 2, 2, "关于");
         return true;
     }
 

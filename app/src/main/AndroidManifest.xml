@@ -3,6 +3,8 @@
           package="cn.xanderye.android.jdck">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
 
     <application
             android:allowBackup="true"
@@ -20,6 +22,11 @@
         </activity>
         <activity android:name=".activity.LoginActivity" android:label="@string/ql_login_name">
         </activity>
+        <receiver android:name=".receiver.SMSReceiver">
+            <intent-filter  android:priority="1000">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
