@@ -3,17 +3,12 @@ package cn.xanderye.android.jdck.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Looper;
 import android.telephony.SmsMessage;
 import android.util.Log;
 import android.webkit.WebView;
 import android.widget.Toast;
 import cn.xanderye.android.jdck.config.Config;
-import cz.msebera.android.httpclient.client.methods.Configurable;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,7 +17,9 @@ import java.util.regex.Pattern;
  */
 public class SMSReceiver extends BroadcastReceiver {
 
-    private static final String TAG = "SMSReceiver";
+    public static final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
+
+    private static final String TAG = SMSReceiver.class.getSimpleName();
 
     public static final Pattern CODE_PATTERN = Pattern.compile("\\d{6}");
 
@@ -42,7 +39,7 @@ public class SMSReceiver extends BroadcastReceiver {
      */
     private void getMsg(Context context, Intent intent) {
         //解析短信内容 pdus短信单位pdu
-        if (intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {
+        if (intent.getAction().equals(SMS_RECEIVED)) {
             Object[] pdus = (Object[]) intent.getExtras().get("pdus");
             assert pdus != null;
             for (Object pdu : pdus) {
